@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SpectraFlow — Interactive Studio Audio Experience</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    /* Smooth custom scrolling */
+    html {
+      scroll-behavior: smooth;
+    }
+
+    /* 3D Perspective container */
+    .perspective-stage {
+      perspective: 1200px;
+    }
+
+    /* Holographic glow animations */
+    @keyframes pulse-hologram {
+      0%, 100% { opacity: 0.4; filter: blur(30px); }
+      50% { opacity: 0.8; filter: blur(45px); }
+    }
+
+    .hologram-glow {
+      animation: pulse-hologram 4s infinite ease-in-out;
+    }
+
+    /* Audio wave bars */
+    .wave-bar {
+      transition: height 0.15s ease-out;
+    }
+  </style>
+</head>
+<body class="bg-[#090B10] text-gray-100 antialiased selection:bg-cyan-500 selection:text-black min-h-[220vh] relative">
+
+  <!-- TOP STICKY HUD -->
+  <header class="border-b border-white/10 bg-[#090B10]/85 backdrop-blur-2xl sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#00F2FE] via-[#9D4EDD] to-[#FF2E93] flex items-center justify-center font-black text-black text-base shadow-lg shadow-cyan-500/20">
+          SF
+        </div>
+        <div>
+          <span class="text-xl font-black tracking-tight text-white flex items-center gap-2">
+            SPECTRAFLOW
+            <span class="text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/30">STEALTH BETA</span>
+          </span>
+          <p class="text-[11px] text-gray-400">Studio Lossless Audio Engine</p>
+        </div>
+      </div>
+
+      <!-- Live Dynamic Scroll & Sound Sensor Metric -->
+      <div class="hidden sm:flex items-center gap-4">
+        <div class="bg-white/5 border border-white/10 px-3.5 py-1.5 rounded-full flex items-center gap-2 text-xs font-mono">
+          <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+          <span class="text-gray-400">Scroll Velocity:</span>
+          <span id="scrollMetric" class="text-cyan-300 font-bold">0 px/s</span>
+        </div>
+        <span class="text-xs text-emerald-400 font-mono bg-emerald-500/10 border border-emerald-500/20 px-3.5 py-1.5 rounded-full">
+          24-BIT / 192kHz NATIVE
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO SECTION -->
+  <main class="max-w-6xl mx-auto px-6 pt-12 space-y-12">
+
+    <!-- Hero Header Text -->
+    <div class="text-center max-w-3xl mx-auto space-y-4">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-xs font-semibold text-cyan-300">
+        <span>⚡</span> Scroll to Interact with 3D Holographic Soundstage
+      </div>
+      <h1 class="text-4xl md:text-6xl font-black tracking-tight text-white leading-tight">
+        Studio Sound. <br>
+        <span class="bg-gradient-to-r from-[#00F2FE] via-[#9D4EDD] to-[#FF2E93] bg-clip-text text-transparent">Zero Compromise.</span>
+      </h1>
+      <p class="text-sm md:text-base text-gray-400">
+        Scroll down to tilt the phone in 3D space, expand the acoustic soundwaves, and ignite the real-time audio spectrum.
+      </p>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- INTERACTIVE 3D SCROLL-DRIVEN BANNER STAGE -->
+    <!-- ========================================================================= -->
+    <div class="perspective-stage py-6">
+      <div 
+        id="interactiveBanner" 
+        class="relative rounded-3xl overflow-hidden border border-white/20 shadow-2xl shadow-cyan-950/60 transition-transform duration-150 ease-out cursor-pointer group select-none"
+        style="transform-style: preserve-3d; transform: rotateX(8deg) rotateY(0deg) scale(1);"
+      >
+        <!-- Background Ambient Glow -->
+        <div id="ambientGlow" class="absolute -inset-2 bg-gradient-to-r from-cyan-500 via-purple-600 to-pink-500 rounded-3xl opacity-40 hologram-glow -z-10 transition-opacity duration-300"></div>
+
+        <!-- Banner Image with Parallax Depth -->
+        <img 
+          id="bannerImg"
+          src="spectraflow_launch_banner_1789887413344.jpg" 
+          alt="SpectraFlow Official Launch Banner" 
+          class="w-full h-auto object-cover rounded-3xl transition-transform duration-200 ease-out pointer-events-none"
+        />
+
+        <!-- LIVE INTERACTIVE EQUALIZER OVERLAY (Reactivity driven by scroll) -->
+        <div class="absolute inset-x-0 bottom-16 px-8 flex items-end justify-between gap-1 pointer-events-none opacity-85">
+          <!-- 32 Dynamic EQ spectrum bars animated via JavaScript -->
+          <div id="eqSpectrum" class="w-full flex items-end justify-between h-20 gap-1.5">
+            <!-- Bars injected by script below -->
+          </div>
+        </div>
+
+        <!-- Interactive Floating Badges (3D Parallax Layer) -->
+        <div class="absolute top-6 left-6 flex flex-wrap gap-3 pointer-events-none" style="transform: translateZ(40px);">
+          <div class="bg-black/60 backdrop-blur-md border border-white/20 px-3 py-1.5 rounded-xl flex items-center gap-2 text-xs font-mono font-bold text-white shadow-xl">
+            <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+            BIT-PERFECT DAC
+          </div>
+          <div class="bg-cyan-950/60 backdrop-blur-md border border-cyan-500/30 px-3 py-1.5 rounded-xl text-xs font-mono font-bold text-cyan-300 shadow-xl">
+            PIONEER 7600 CAR DSP ON
+          </div>
+        </div>
+
+        <!-- Interactive 3D Depth Card Overlay on Hover / Scroll -->
+        <div class="absolute top-6 right-6 pointer-events-none" style="transform: translateZ(50px);">
+          <div class="bg-black/70 backdrop-blur-md border border-white/20 p-3 rounded-2xl shadow-2xl text-right space-y-1">
+            <span class="text-[10px] uppercase font-mono text-gray-400">Dynamic Bitrate</span>
+            <div id="bitrateCounter" class="text-sm font-black font-mono text-amber-400">4,608 kbps</div>
+            <div class="text-[9px] text-emerald-400 font-mono">0.0ms GAPLESS BUFFER</div>
+          </div>
+        </div>
+
+        <!-- Interactive Bottom Banner Footer -->
+        <div class="absolute bottom-0 inset-x-0 p-6 bg-gradient-to-t from-black/95 via-black/70 to-transparent flex flex-col md:flex-row md:items-center justify-between gap-4" style="transform: translateZ(30px);">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+              <span class="text-xs uppercase font-mono tracking-widest text-cyan-400 font-bold">Interactive Soundstage</span>
+            </div>
+            <h3 class="text-xl font-black text-white tracking-tight">4K Studio Master & Dynamic Holographic Visualizer</h3>
+          </div>
+          <div class="flex items-center gap-3">
+            <button onclick="boostAcoustics()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-black font-black text-xs uppercase tracking-wider hover:opacity-90 transition shadow-lg shadow-cyan-500/30 pointer-events-auto">
+              🔊 Boost Cabin Bass
+            </button>
+            <span class="bg-white/10 text-gray-300 text-xs font-mono px-3 py-2 rounded-xl border border-white/10">
+              Drag mouse or scroll
+            </span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- SCROLL-REVEALED ARCHITECTURAL PILLARS -->
+    <!-- ========================================================================= -->
+    <div class="space-y-6 pt-8">
+      <div class="text-center space-y-2">
+        <h2 class="text-2xl md:text-3xl font-black text-white">Engineered For Acoustic Superiority</h2>
+        <p class="text-xs text-gray-400">How SpectraFlow outclasses conventional Android & iOS streaming apps</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Pillar 1 -->
+        <div class="bg-[#131722] border border-white/10 rounded-2xl p-6 space-y-3 hover:border-cyan-500/40 transition">
+          <div class="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 text-2xl font-bold">
+            💎
+          </div>
+          <h3 class="text-lg font-bold text-white">Direct Bit-Perfect Hardware Routing</h3>
+          <p class="text-xs text-gray-400 leading-relaxed">
+            Bypasses Android's mandatory 48kHz downsampling mixer via native floating-point AudioTrack rendering. Your 24-bit / 96kHz and 192kHz master files reach your DAC uncompressed.
+          </p>
+        </div>
+
+        <!-- Pillar 2 -->
+        <div class="bg-[#131722] border border-white/10 rounded-2xl p-6 space-y-3 hover:border-emerald-500/40 transition">
+          <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-2xl font-bold">
+            🚗
+          </div>
+          <h3 class="text-lg font-bold text-white">Vehicle Acoustic Matrix (Pioneer & Alpine)</h3>
+          <p class="text-xs text-gray-400 leading-relaxed">
+            Pre-calibrated cabin reflection DSP, harmonic exciters, and sub-bass shelf filters engineered specifically to punch through road noise and compensate for off-axis car speakers.
+          </p>
+        </div>
+
+        <!-- Pillar 3 -->
+        <div class="bg-[#131722] border border-white/10 rounded-2xl p-6 space-y-3 hover:border-purple-500/40 transition">
+          <div class="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 text-2xl font-bold">
+            🎭
+          </div>
+          <h3 class="text-lg font-bold text-white">Dual Persona: Classic vs. Studio</h3>
+          <p class="text-xs text-gray-400 leading-relaxed">
+            One master switch: casual users enjoy Spotify-like 1-tap presets and auto-volume normalization; audio enthusiasts get full 10-band parametric EQ, Q-factor, and live format metrics.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- CALL TO ACTION -->
+    <div class="bg-gradient-to-br from-[#131722] to-[#1a1329] border border-white/10 rounded-3xl p-8 md:p-12 text-center space-y-6">
+      <div class="max-w-xl mx-auto space-y-3">
+        <span class="text-xs font-mono uppercase tracking-widest text-pink-400 font-bold">Stealth Launch</span>
+        <h2 class="text-3xl font-black text-white">Be First In Line for the Private Beta</h2>
+        <p class="text-xs md:text-sm text-gray-400">
+          Source code is currently in private development. Star the creator profile on GitHub to receive the v1.0 release APK and desktop build.
+        </p>
+      </div>
+
+      <div class="flex flex-wrap items-center justify-center gap-4 pt-2">
+        <a href="https://github.com/BeerBro6" target="_blank" class="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-black font-bold text-xs uppercase tracking-wider shadow-lg shadow-cyan-500/25 hover:opacity-95 transition">
+          ⭐ Follow @BeerBro6 on GitHub
+        </a>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="border-t border-white/10 py-10 text-center text-xs text-gray-500 mt-20">
+    <p>© 2026 SpectraFlow. Created by Anmol Ratn (@BeerBro6). Open-Source GPL-3.0.</p>
+  </footer>
+
+  <!-- ========================================================================= -->
+  <!-- JAVASCRIPT: SCROLL REVENUE & 3D INTERACTION ENGINE -->
+  <!-- ========================================================================= -->
+  <script>
+    const banner = document.getElementById('interactiveBanner');
+    const bannerImg = document.getElementById('bannerImg');
+    const ambientGlow = document.getElementById('ambientGlow');
+    const scrollMetric = document.getElementById('scrollMetric');
+    const bitrateCounter = document.getElementById('bitrateCounter');
+    const eqContainer = document.getElementById('eqSpectrum');
+
+    // 1. Build 36 Equalizer Bars
+    const numBars = 36;
+    const bars = [];
+    for (let i = 0; i < numBars; i++) {
+      const bar = document.createElement('div');
+      bar.className = 'wave-bar flex-1 rounded-full';
+      // Gradient colors from cyan to magenta
+      const ratio = i / numBars;
+      bar.style.backgroundColor = ratio < 0.5 ? '#00F2FE' : '#FF2E93';
+      bar.style.opacity = '0.75';
+      bar.style.height = `${10 + Math.random() * 30}px`;
+      eqContainer.appendChild(bar);
+      bars.push(bar);
+    }
+
+    // 2. Scroll Physics & Velocity Calculation
+    let lastScrollY = window.scrollY;
+    let lastTimestamp = Date.now();
+    let scrollVelocity = 0;
+    let targetRotationX = 8;
+    let targetRotationY = 0;
+    let targetScale = 1;
+
+    window.addEventListener('scroll', () => {
+      const currentScrollY = window.scrollY;
+      const now = Date.now();
+      const dt = Math.max(1, now - lastTimestamp);
+      const dy = Math.abs(currentScrollY - lastScrollY);
+
+      // Compute scroll velocity (pixels per second)
+      scrollVelocity = (dy / dt) * 1000;
+      scrollMetric.innerText = `${Math.round(scrollVelocity)} px/s`;
+
+      // Calculate scroll progress (0.0 to 1.0 within hero)
+      const scrollProgress = Math.min(1, currentScrollY / 500);
+
+      // 3D Parallax Tilt Calculation:
+      // Starts tilted back (+8deg), levels out to 0deg at mid-scroll, then tilts slightly forward (-4deg)
+      targetRotationX = 8 - (scrollProgress * 14);
+      targetScale = 1 + (scrollProgress * 0.04);
+
+      // Boost Hologram glow on scroll
+      ambientGlow.style.opacity = Math.min(0.9, 0.4 + (scrollVelocity / 1500));
+
+      // Dynamic Bitrate Flutter on high scroll velocity
+      if (scrollVelocity > 500) {
+        bitrateCounter.innerText = `${(4608 + Math.floor(Math.random() * 500)).toLocaleString()} kbps`;
+      } else {
+        bitrateCounter.innerText = '4,608 kbps';
+      }
+
+      // Vigorously animate equalizer bars based on scroll velocity
+      bars.forEach((bar, idx) => {
+        const energy = Math.sin(idx * 0.3 + currentScrollY * 0.02) * 0.5 + 0.5;
+        const velocityBoost = Math.min(60, scrollVelocity * 0.04);
+        const newHeight = Math.max(8, (energy * 45) + velocityBoost);
+        bar.style.height = `${newHeight}px`;
+      });
+
+      lastScrollY = currentScrollY;
+      lastTimestamp = now;
+    });
+
+    // 3. Smooth Mouse Hover Parallax Perspective
+    banner.addEventListener('mousemove', (e) => {
+      const rect = banner.getBoundingClientRect();
+      const x = e.clientX - rect.left; // x position within banner
+      const y = e.clientY - rect.top;  // y position within banner
+
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+
+      // Subtle tilt (-6deg to +6deg)
+      targetRotationY = ((x - centerX) / centerX) * 8;
+      targetRotationX = -((y - centerY) / centerY) * 8;
+    });
+
+    banner.addEventListener('mouseleave', () => {
+      targetRotationY = 0;
+      targetRotationX = 8 - (Math.min(1, window.scrollY / 500) * 14);
+    });
+
+    // 4. RequestAnimationFrame Render Loop for silky smooth 60fps 3D interpolation
+    function renderLoop() {
+      banner.style.transform = `rotateX(${targetRotationX}deg) rotateY(${targetRotationY}deg) scale(${targetScale})`;
+      requestAnimationFrame(renderLoop);
+    }
+    renderLoop();
+
+    // 5. Sound Boost Action
+    function boostAcoustics() {
+      bars.forEach((bar) => {
+        bar.style.height = `${40 + Math.random() * 40}px`;
+      });
+      ambientGlow.style.opacity = '1.0';
+      bitrateCounter.innerText = '9,216 kbps (HI-RES)';
+      setTimeout(() => {
+        bitrateCounter.innerText = '4,608 kbps';
+      }, 1500);
+    }
+  </script>
+
+</body>
+</html>
