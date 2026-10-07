@@ -7,8 +7,8 @@
 <div align="center">
 
 [![Live Interactive Website](https://img.shields.io/badge/Live_Website-Visit_Preview_Site-00F2FE?style=for-the-badge&logo=google-chrome&logoColor=black)](https://beerbro6.github.io/spectraflow-preview/)
-[![Engine: Bit-Perfect 24-bit/192kHz](https://img.shields.io/badge/Audio-Bit--Perfect_FLAC_24bit-FF2E93?style=for-the-badge)](#)
-[![Status: Stealth Development](https://img.shields.io/badge/Release-Private_Beta_Q4_2026-9D4EDD?style=for-the-badge&logo=github&logoColor=white)](#)
+[![Latest Release](https://img.shields.io/github/v/release/BeerBro6/spectraflow?style=for-the-badge&color=9D4EDD&label=APK%20Release)](https://github.com/BeerBro6/spectraflow/releases/latest)
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/beerbro6)
 
 </div>
 
